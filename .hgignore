@@ -1,0 +1,8 @@
+syntax: glob
+*.dll
+*.swp
+obj/*
+bin/*
+*.suo
+build/*
+*.sln.cache
