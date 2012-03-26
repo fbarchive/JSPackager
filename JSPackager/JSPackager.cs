@@ -22,8 +22,31 @@ namespace JSPackager {
             get { return false; }
         }
 
+        private IEnumerable<string> SearchPath(string path) {
+            var bits = path.Split('\\');
+
+            for (int i = 0; i < bits.Length; i++) {
+                yield return string.Join(
+                    Path.DirectorySeparatorChar.ToString(),
+                    bits.Skip(bits.Length - i).ToArray()
+                );
+            }
+        }
+
+        private string GetRoot(HttpContext context) {
+            var root = context.Server.MapPath("~");
+            foreach(var guess in SearchPath(Path.GetDirectoryName(context.Request.Path))) {
+                var path = Path.Combine(root, guess);
+                if(File.Exists(Path.Combine(path, "jspkg.json"))) {
+                    return path;
+                }
+            }
+
+            throw new FileNotFoundException("Could not find package spec.", "jspkg.json");
+        }
+
         public void ProcessRequest(HttpContext context) {
-            var packager = new JSPackager(context.Server.MapPath("~"));
+            var packager = new JSPackager(GetRoot(context));
             var package = Path.GetFileNameWithoutExtension(context.Request.Path);
 
             context.Response.ContentType = "text/javascript";
