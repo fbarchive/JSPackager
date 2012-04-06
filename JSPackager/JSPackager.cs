@@ -132,6 +132,11 @@ namespace JSPackager {
                 result.Write(src, 0, src.Length);
             }
         }
+
+        public IEnumerable<string> Files(string name) {
+            var package = pkgMap[name];
+            return package.ResolveDependencies(pkgMap);
+        }
     }
 }
 
